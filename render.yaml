@@ -1,0 +1,82 @@
+# ==============================================================================
+# ChainProof: Blockchain-Based Document Integrity Verification System
+# Render Infrastructure Blueprint (render.yaml)
+# Hosts both Backend (Web Service), Frontend (Static Site), and PostgreSQL Database
+# ==============================================================================
+
+services:
+  # ----------------------------------------------------------------------------
+  # 1. ChainProof Backend Web Service
+  # ----------------------------------------------------------------------------
+  - type: web
+    name: chainproof-backend
+    runtime: node
+    plan: free
+    region: oregon
+    rootDir: .
+    buildCommand: npm install && npm run db:migrate && npm run db:seed
+    startCommand: npm start
+    healthCheckPath: /api/health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: DATABASE_URL
+        fromDatabase:
+          name: chainproof-db
+          property: connectionString
+      - key: CLIENT_ORIGIN
+        fromService:
+          type: static
+          name: chainproof-frontend
+          property: url
+      - key: JWT_SECRET
+        generateValue: true
+      - key: COOKIE_SECRET
+        generateValue: true
+      - key: COOKIE_SECURE
+        value: "true"
+      - key: BLOCKCHAIN_NETWORK
+        value: sepolia
+      - key: BLOCKCHAIN_RPC_URL
+        value: https://rpc.sepolia.org
+      - key: CONTRACT_ADDRESS
+        value: "0x5FbDB2315678afecb367f032d93F642f64180aa3"
+      - key: BLOCKCHAIN_PRIVATE_KEY
+        sync: false
+      - key: UPLOAD_STORAGE_DIR
+        value: ./storage/documents
+      - key: UPLOAD_MAX_FILE_SIZE_MB
+        value: "15"
+
+  # ----------------------------------------------------------------------------
+  # 2. ChainProof Frontend Static Site
+  # ----------------------------------------------------------------------------
+  - type: static
+    name: chainproof-frontend
+    plan: free
+    region: oregon
+    rootDir: frontend
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: chainproof-backend
+          property: url
+
+databases:
+  # ----------------------------------------------------------------------------
+  # 3. ChainProof PostgreSQL Database
+  # ----------------------------------------------------------------------------
+  - name: chainproof-db
+    plan: free
+    region: oregon
+    databaseName: chainproof
+    user: chainproof_user

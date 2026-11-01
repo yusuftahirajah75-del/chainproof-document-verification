@@ -1,0 +1,55 @@
+{
+  "name": "chainproof-document-verification",
+  "version": "1.0.0",
+  "description": "Blockchain-Based Document Integrity Verification System Backend",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "frontend:dev": "cd frontend && npm run dev",
+    "frontend:build": "cd frontend && npm run build",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js",
+    "contract:compile": "hardhat --config hardhat.config.cjs compile",
+    "contract:test": "hardhat --config hardhat.config.cjs test",
+    "contract:deploy:local": "hardhat --config hardhat.config.cjs run scripts/deploy.js --network localhost",
+    "contract:deploy:hardhat": "hardhat --config hardhat.config.cjs run scripts/deploy.js --network hardhat",
+    "hardhat:node": "hardhat --config hardhat.config.cjs node",
+    "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --detectOpenHandles --forceExit",
+    "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --runInBand --coverage --detectOpenHandles --forceExit"
+  },
+  "keywords": [
+    "blockchain",
+    "document-verification",
+    "solidity",
+    "ethereum",
+    "sha256",
+    "express",
+    "postgresql",
+    "cybersecurity"
+  ],
+  "author": "ChainProof Team",
+  "license": "ISC",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.9",
+    "ethers": "^6.17.0",
+    "express": "^5.3.0",
+    "express-rate-limit": "^8.7.2",
+    "helmet": "^8.3.0",
+    "jest": "^30.5.2",
+    "jsonwebtoken": "^9.0.3",
+    "multer": "^2.5.0",
+    "pg": "^8.23.1",
+    "supertest": "^7.3.1",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "chai": "^4.5.0",
+    "hardhat": "^2.29.1"
+  }
+}
