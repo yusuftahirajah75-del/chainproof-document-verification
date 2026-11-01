@@ -1,7 +1,7 @@
 # ==============================================================================
 # ChainProof: Blockchain-Based Document Integrity Verification System
 # Render Infrastructure Blueprint (render.yaml)
-# Hosts both Backend (Web Service), Frontend (Static Site), and PostgreSQL Database
+# Hosts Backend (Web Service), Frontend (Static Site), and PostgreSQL Database
 # ==============================================================================
 
 services:
@@ -28,9 +28,9 @@ services:
           property: connectionString
       - key: CLIENT_ORIGIN
         fromService:
-          type: static
+          type: web
           name: chainproof-frontend
-          property: url
+          property: host
       - key: JWT_SECRET
         generateValue: true
       - key: COOKIE_SECRET
@@ -53,8 +53,9 @@ services:
   # ----------------------------------------------------------------------------
   # 2. ChainProof Frontend Static Site
   # ----------------------------------------------------------------------------
-  - type: static
+  - type: web
     name: chainproof-frontend
+    runtime: static
     plan: free
     region: oregon
     rootDir: frontend
@@ -69,7 +70,7 @@ services:
         fromService:
           type: web
           name: chainproof-backend
-          property: url
+          property: host
 
 databases:
   # ----------------------------------------------------------------------------

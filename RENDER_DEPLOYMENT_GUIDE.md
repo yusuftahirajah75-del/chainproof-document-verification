@@ -229,3 +229,4 @@ Log in with the seeded accounts:
 3. Observe client-side byte-level SHA-256 computation.
 4. Click **Register Document on Blockchain**.
 5. Verify transaction record appears in **Document History**.
+
