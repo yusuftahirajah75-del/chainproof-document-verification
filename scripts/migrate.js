@@ -11,16 +11,24 @@ const __dirname = path.dirname(__filename);
 
 const { Pool } = pg;
 
+function normalizeConnectionString(rawUrl) {
+  if (!rawUrl) return "";
+  return rawUrl
+    .replace(/([?&])sslmode=[^&]+(&?)/i, (match, p1, p2) => (p2 ? p1 : ""))
+    .replace(/[?&]$/, "");
+}
+
 export async function runMigrations(customConfig = null) {
   const poolConfig =
     customConfig ||
     (process.env.DATABASE_URL
       ? {
-          connectionString: process.env.DATABASE_URL,
+          connectionString: normalizeConnectionString(process.env.DATABASE_URL),
           ssl:
-            process.env.NODE_ENV === "production" || !process.env.DATABASE_URL.includes("localhost")
-              ? { rejectUnauthorized: false }
-              : false,
+            process.env.DATABASE_URL.includes("localhost") ||
+            process.env.DATABASE_URL.includes("127.0.0.1")
+              ? false
+              : { rejectUnauthorized: false },
         }
       : {
           host: process.env.DB_HOST || "localhost",

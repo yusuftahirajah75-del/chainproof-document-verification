@@ -4,15 +4,23 @@ import { logger } from "../utils/logger.js";
 
 const { Pool } = pg;
 
+function normalizeConnectionString(rawUrl) {
+  if (!rawUrl) return "";
+  // Strip sslmode query param so node-postgres does not overwrite ssl: { rejectUnauthorized: false }
+  return rawUrl
+    .replace(/([?&])sslmode=[^&]+(&?)/i, (match, p1, p2) => (p2 ? p1 : ""))
+    .replace(/[?&]$/, "");
+}
+
 const poolConfig = config.db.url
   ? {
-      connectionString: config.db.url,
+      connectionString: normalizeConnectionString(config.db.url),
       max: config.db.poolMax,
       idleTimeoutMillis: config.db.idleTimeoutMillis,
       ssl:
-        process.env.NODE_ENV === "production" || !config.db.url.includes("localhost")
-          ? { rejectUnauthorized: false }
-          : false,
+        config.db.url.includes("localhost") || config.db.url.includes("127.0.0.1")
+          ? false
+          : { rejectUnauthorized: false },
     }
   : {
       host: config.db.host,

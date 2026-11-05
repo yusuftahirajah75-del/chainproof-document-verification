@@ -121,7 +121,12 @@ export class AuthService {
     if (res.rows.length === 0) {
       throw new AppError("User not found.", 404);
     }
-    return res.rows[0];
+    const row = res.rows[0];
+    return {
+      ...row,
+      fullName: row.full_name,
+      createdAt: row.created_at,
+    };
   }
 
   /**

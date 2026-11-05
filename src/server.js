@@ -2,18 +2,31 @@ import app from "./app.js";
 import { config } from "./config/env.js";
 import { pool, checkDatabaseConnection } from "./config/database.js";
 import { checkBlockchainConnection } from "./config/blockchain.js";
+import { runMigrations } from "../scripts/migrate.js";
+import { seedDatabase } from "../scripts/seed.js";
 import { logger } from "./utils/logger.js";
 
 async function startServer() {
   logger.info("Initializing ChainProof Backend Services...");
 
-  // Verify database connectivity
+  // Verify database connectivity & auto-initialize schema/seed accounts
   const dbOk = await checkDatabaseConnection();
-  if (!dbOk) {
-    logger.error("FATAL: Could not connect to PostgreSQL database. Exiting...");
-    process.exit(1);
+  if (dbOk) {
+    logger.info(
+      `PostgreSQL database connected: ${config.db.url ? "DATABASE_URL" : `${config.db.name} on ${config.db.host}:${config.db.port}`}`
+    );
+    try {
+      await runMigrations();
+      await seedDatabase();
+      logger.info("Database migrations and default seminar accounts verified.");
+    } catch (initErr) {
+      logger.warn(`Database auto-initialization warning: ${initErr.message}`);
+    }
+  } else {
+    logger.warn(
+      "WARNING: PostgreSQL database is not reachable. Check DATABASE_URL environment variable."
+    );
   }
-  logger.info(`PostgreSQL database connected: ${config.db.name} on ${config.db.host}:${config.db.port}`);
 
   // Check blockchain connectivity
   const bcHealth = await checkBlockchainConnection();
